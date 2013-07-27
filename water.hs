@@ -20,8 +20,6 @@ main = do
              forM_ (assocs g) $ \((i,j),c) -> when c $ do
                when (i > 0 && g!(i-1,j)) $ union parent size (i,j) (i-1,j)
                when (j > 0 && g!(i,j-1)) $ union parent size (i,j) (i,j-1)
-               when (i < h-1 && g!(i+1,j)) $ union parent size (i,j) (i+1,j)
-               when (j < l-1 && g!(i,j+1)) $ union parent size (i,j) (i,j+1)
              forM ps $ \p -> if (g!p) then find parent p >>= readArray size
                              else return 0
   mapM_ print as
