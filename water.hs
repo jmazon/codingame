@@ -4,10 +4,13 @@ import Data.Array.ST
 import Control.Monad.ST
 import Control.Arrow
 
+{-# INLINE isWater #-}
 isWater 'O' = True
 isWater '#' = False
 
+{-# INLINE readPair #-}
 readPair = getLine >>= return . ((!!1) &&& (!!0)) . map read . words
+
 main = do
   l <- readLn
   h <- readLn
