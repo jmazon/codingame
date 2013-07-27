@@ -24,6 +24,7 @@ main = do
                              else return 0
   mapM_ print as
 
+{-# INLINE union #-}
 union parent size x y = do
   xRoot <- find parent x
   yRoot <- find parent y
@@ -38,6 +39,7 @@ union parent size x y = do
         writeArray parent yRoot xRoot
         writeArray size xRoot $! ySize + xSize
 
+{-# INLINE find #-}
 find parent = go
     where go x = do
             xParent <- readArray parent x
