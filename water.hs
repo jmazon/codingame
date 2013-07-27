@@ -1,4 +1,4 @@
-import Data.Array
+import Data.Array.Unboxed
 import Data.Array.ST
 import qualified Data.ByteString.Char8 as B
 import Control.Monad
@@ -10,6 +10,7 @@ main = do
   h <- liftM readInt B.getLine
   g <- liftM (listArray ((0,0),(h-1,l-1)) . map isWater . B.unpack . B.concat)
              (replicateM h B.getLine)
+       :: IO (UArray (Int,Int) Bool)
   n <- liftM readInt B.getLine
   ps <- replicateM n readPair
   mapM_ print $ runST $ do
