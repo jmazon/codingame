@@ -1,8 +1,26 @@
 import Data.Array
-import Control.Monad
 import Data.Array.ST
+import Control.Monad
 import Control.Monad.ST
 import Control.Arrow
+
+main = do
+  l <- readLn
+  h <- readLn
+  g <- liftM (listArray ((0,0),(h-1,l-1)) . map isWater . concat)
+             (replicateM h getLine)
+  n <- readLn
+  ps <- replicateM n readPair
+  mapM_ print $ runST $ do
+    parent <- newListArray (bounds g) (indices g) 
+                                  :: ST s (STArray s (Int,Int) (Int,Int))
+    size <- newArray (bounds g) 1 :: ST s (STUArray s (Int,Int) Int)
+    forM_ (filter snd $ assocs g) $ \((i,j),c) -> do
+      when (i > 0 && g!(i-1,j)) $ union parent size (i,j) (i-1,j)
+      when (j > 0 && g!(i,j-1)) $ union parent size (i,j) (i,j-1)
+    forM ps $ \p -> if (g!p)
+                      then find parent p >>= readArray size
+                      else return 0
 
 {-# INLINE isWater #-}
 isWater 'O' = True
@@ -10,22 +28,6 @@ isWater '#' = False
 
 {-# INLINE readPair #-}
 readPair = getLine >>= return . ((!!1) &&& (!!0)) . map read . words
-
-main = do
-  l <- readLn
-  h <- readLn
-  g <- fmap (listArray ((0,0),(h-1,l-1)) . map isWater . concat) (replicateM h getLine)
-  n <- readLn
-  ps <- replicateM n readPair
-  let as = runST $ do
-             parent <- newListArray (bounds g) (indices g) :: ST s (STArray s (Int,Int) (Int,Int))
-             size <- newArray (bounds g) 1 :: ST s (STUArray s (Int,Int) Int)
-             forM_ (assocs g) $ \((i,j),c) -> when c $ do
-               when (i > 0 && g!(i-1,j)) $ union parent size (i,j) (i-1,j)
-               when (j > 0 && g!(i,j-1)) $ union parent size (i,j) (i,j-1)
-             forM ps $ \p -> if (g!p) then find parent p >>= readArray size
-                             else return 0
-  mapM_ print as
 
 {-# INLINE union #-}
 union parent size x y = do
