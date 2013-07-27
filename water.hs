@@ -1,15 +1,16 @@
 import Data.Array
 import Data.Array.ST
+import qualified Data.ByteString.Char8 as B
 import Control.Monad
 import Control.Monad.ST
 import Control.Arrow
 
 main = do
-  l <- readLn
-  h <- readLn
-  g <- liftM (listArray ((0,0),(h-1,l-1)) . map isWater . concat)
-             (replicateM h getLine)
-  n <- readLn
+  l <- liftM readInt B.getLine
+  h <- liftM readInt B.getLine
+  g <- liftM (listArray ((0,0),(h-1,l-1)) . map isWater . B.unpack . B.concat)
+             (replicateM h B.getLine)
+  n <- liftM readInt B.getLine
   ps <- replicateM n readPair
   mapM_ print $ runST $ do
     parent <- newListArray (bounds g) (indices g) 
@@ -22,12 +23,15 @@ main = do
                       then find parent p >>= readArray size
                       else return 0
 
+{-# INLINE readInt #-}
+readInt s = i where Just (i,_) = B.readInt s
+
 {-# INLINE isWater #-}
 isWater 'O' = True
 isWater '#' = False
 
 {-# INLINE readPair #-}
-readPair = getLine >>= return . ((!!1) &&& (!!0)) . map read . words
+readPair = B.getLine >>= return . ((!!1) &&& (!!0)) . map readInt . B.words
 
 {-# INLINE union #-}
 union parent size x y = do
